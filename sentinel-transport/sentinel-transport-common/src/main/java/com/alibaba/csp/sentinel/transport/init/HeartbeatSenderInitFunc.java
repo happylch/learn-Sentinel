@@ -42,13 +42,14 @@ public class HeartbeatSenderInitFunc implements InitFunc {
     private void initSchedulerIfNeeded() {
         if (pool == null) {
             pool = new ScheduledThreadPoolExecutor(2,
-                new NamedThreadFactory("sentinel-heartbeat-send-task", true),
-                new DiscardOldestPolicy());
+                    new NamedThreadFactory("sentinel-heartbeat-send-task", true),
+                    new DiscardOldestPolicy());
         }
     }
 
     @Override
     public void init() {
+        //基于spi机制查询 com.alibaba.csp.sentinel.transport.HeartbeatSender
         HeartbeatSender sender = HeartbeatSenderProvider.getHeartbeatSender();
         if (sender == null) {
             RecordLog.warn("[HeartbeatSenderInitFunc] WARN: No HeartbeatSender loaded");
@@ -73,16 +74,23 @@ public class HeartbeatSenderInitFunc implements InitFunc {
         Long intervalInConfig = TransportConfig.getHeartbeatIntervalMs();
         if (isValidHeartbeatInterval(intervalInConfig)) {
             RecordLog.info("[HeartbeatSenderInitFunc] Using heartbeat interval "
-                + "in Sentinel config property: " + intervalInConfig);
+                    + "in Sentinel config property: " + intervalInConfig);
             return intervalInConfig;
         } else {
             long senderInterval = sender.intervalMs();
             RecordLog.info("[HeartbeatSenderInit] Heartbeat interval not configured in "
-                + "config property or invalid, using sender default: " + senderInterval);
+                    + "config property or invalid, using sender default: " + senderInterval);
             return senderInterval;
         }
     }
 
+    /**
+     * 创建并执行在给定的初始延迟之后，随后以给定的时间段首先启用的周期性动作;
+     * 那就是执行将在initialDelay之后开始，然后是initialDelay+period ，然后是initialDelay + 2 * period ，等等。
+     *
+     * @param sender
+     * @param interval
+     */
     private void scheduleHeartbeatTask(/*@NonNull*/ final HeartbeatSender sender, /*@Valid*/ long interval) {
         pool.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -95,6 +103,6 @@ public class HeartbeatSenderInitFunc implements InitFunc {
             }
         }, 5000, interval, TimeUnit.MILLISECONDS);
         RecordLog.info("[HeartbeatSenderInit] HeartbeatSender started: "
-            + sender.getClass().getCanonicalName());
+                + sender.getClass().getCanonicalName());
     }
 }
