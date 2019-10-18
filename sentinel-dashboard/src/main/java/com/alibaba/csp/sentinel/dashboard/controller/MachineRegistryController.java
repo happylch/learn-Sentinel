@@ -42,6 +42,8 @@ public class MachineRegistryController {
     /**
      * 客户端sentinel (heartbeat)通过http Post请求的方式的方式将自己的一些信息发送到sentinel-dashboard
      *
+     *  这些属性来源于 sentinel-transport-simple-http中的com.alibaba.csp.sentinel.transport.heartbeat.HeartbeatMessage
+     *
      * @param app
      * @param appType
      * @param version
