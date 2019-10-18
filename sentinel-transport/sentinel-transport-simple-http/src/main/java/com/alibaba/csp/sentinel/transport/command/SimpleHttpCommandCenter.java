@@ -125,7 +125,10 @@ public class SimpleHttpCommandCenter implements CommandCenter {
                 if (!success) {
                     port = PORT_UNINITIALIZED;
                 }
-                //将本次代码逻辑执行完毕之后的port值设置到 transportConfig上
+                // 将本次代码逻辑执行完毕之后的port值设置到 transportConfig上，
+                // com.alibaba.csp.sentinel.transport.heartbeat.SimpleHttpHeartbeatSender.sendHeartbeat方法会使用到这个端口号
+                // 使用这个端口号干啥呢？
+                // 主要是为了告知dashboard 我这个业务应用开启的什么端口，可以供你请求获取当前客户端的数据。
                 TransportConfig.setRuntimePort(port);
 
                 // executor.submit(new ServerThread(serverSocket))
